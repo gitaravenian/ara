@@ -174,6 +174,7 @@ const ContactForm: React.FC = () => {
                 message: "Captcha expired. Please verify again.",
               });
             }}
+            options={{ theme: "light" }}
           />
         </div>
         <SubmitButton
