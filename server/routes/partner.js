@@ -15,4 +15,6 @@ router.get("/:id", getPartnerController);
 router.patch("/:id/status", updatePartnerStatusController);
 router.delete("/:id", deletePartnerController);
 
+
+
 export default router;

@@ -395,7 +395,7 @@ const PartnerPage = () => {
                             <h4 className="text-gray-700 font-medium">
                               📞 Phone Numbers:
                             </h4>
-                            {seller.phones.length > 0 ? (
+                            {seller.phones?.length > 0 ? (
                               <ul className="list-disc pl-5 text-gray-700">
                                 {seller.phones.map((phone) => (
                                   <li key={phone.id} className="text-gray-600">

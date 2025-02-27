@@ -9,6 +9,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { X } from "lucide-react";
 import { CheckCircle2 } from "lucide-react";
 import { Turnstile } from "@marsidev/react-turnstile";
+import { apiClient } from "@/lib/api";
 
 // Define form data type
 interface FormData {
@@ -23,6 +24,7 @@ const ContactForm: React.FC = () => {
   const [isSending, setIsSending] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [isVerified, setIsVerified] = useState(false);
+  const [captchaKey, setCaptchaKey] = useState(Date.now());
   const [alert, setAlert] = useState<{
     type: "success" | "error" | "info";
     message: string;
@@ -59,23 +61,34 @@ const ContactForm: React.FC = () => {
         type: "error",
         message: "Please complete the captcha verification first.",
       });
-      return; // Stop form submission if captcha isn't verified
+      setIsSending(false);
+      return;
     }
-    try {
-      const response = await axios.post(
-        "http://localhost:8000/api/email/send-email",
-        formData
-      );
-      // Log the response to see what we're getting\
-      console.log("Response received:", response);
-      console.log("Response data:", response.data);
-      setIsVerified(false);
 
-      // Check response.data.success instead of response.status
+    // Log to see the actual form data
+    console.log("Form data before sending:", formData);
+
+    try {
+      // Make sure all fields are included in the request body
+      const emailData = {
+        name: formData.name,
+        email: formData.email,
+        subject: formData.subject,
+        message: formData.message,
+      };
+
+      // Log the data being sent
+      console.log("Data being sent to API:", emailData);
+
+      const response = await apiClient.post("/api/email/send-email", emailData);
+
+      console.log("Response received:", response.data);
+
       if (response.data.success) {
         setShowSuccess(true);
         reset();
-        setIsVerified(false); // Reset verification state
+        setIsVerified(false);
+        setCaptchaKey(Date.now());
         setTimeout(() => {
           setShowSuccess(false);
         }, 3000);
@@ -118,35 +131,38 @@ const ContactForm: React.FC = () => {
           <Input
             type="text"
             placeholder="Your Name"
-            {...register("name")}
+            {...register("name")} // This is important
             $isError={!!errors.name}
           />
           {errors.name && <ErrorMessage>{errors.name?.message}</ErrorMessage>}
         </InputWrapper>
+
         <InputWrapper>
           <Input
             type="email"
             placeholder="Your Email"
-            {...register("email")}
+            {...register("email")} // This is important
             $isError={!!errors.email}
           />
           {errors.email && <ErrorMessage>{errors.email?.message}</ErrorMessage>}
         </InputWrapper>
+
         <InputWrapper>
           <Input
             type="text"
             placeholder="Subject"
-            {...register("subject")}
+            {...register("subject")} // This is important
             $isError={!!errors.subject}
           />
           {errors.subject && (
             <ErrorMessage>{errors.subject?.message}</ErrorMessage>
           )}
         </InputWrapper>
+
         <InputWrapper>
           <Textarea
             placeholder="Your Message"
-            {...register("message")}
+            {...register("message")} // This is important
             $isError={!!errors.message}
           />
           {errors.message && (
@@ -155,6 +171,7 @@ const ContactForm: React.FC = () => {
         </InputWrapper>
         <div className="flex justify-center mb-4">
           <Turnstile
+            key={captchaKey}
             siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY as string}
             onSuccess={(token: string) => {
               setIsVerified(true);

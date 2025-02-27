@@ -16,6 +16,7 @@ import aboutRouter from "./routes/about.js";
 import partnerRouter from "./routes/partner.js";
 import partnerEmail from "./routes/partnerEmail.js";
 import sellerRoutes from "./routes/sellerRouter.js";
+import phoneRouter from "./routes/phone.js";
 
 const app = express();
 const PORT = process.env.PORT || 8000;
@@ -108,6 +109,7 @@ app.use("/services", servicesRouter);
 app.use("/about", aboutRouter);
 app.use("/partner", partnerRouter);
 app.use("/seller", sellerRoutes);
+app.use("/phone", phoneRouter);
 app.use(express.static("uploads"));
 
 app.use("/admin", AdminFeatureRouter);
@@ -126,8 +128,8 @@ async function testDbConnection() {
 testDbConnection();
 
 // Start server
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+app.listen(8000, "0.0.0.0", () => {
+  console.log("Server running on port 8000");
 });
 
 // Catch All Route for 404 Errors
@@ -147,4 +149,16 @@ app.use((error, req, res, next) => {
     message: error.message || "Internal server error",
     path: req.originalUrl,
   });
+});
+app.get("/", (req, res) => {
+  try {
+    res.send("Hello server"); // Or serve your frontend
+    // Or res.sendFile(path.join(__dirname, 'public', 'index.html'));
+  } catch (error) {
+    console.error("Database connection failed:", error.message);
+    // Continue running the app even with DB failure
+  }
+});
+app.get("/", (req, res) => {
+  res.send("Hello server");
 });
