@@ -30,14 +30,16 @@ router.post("/send-email", async (req, res) => {
 
     // Send email to admin
     await sendEmail({
-      to: process.env.EMAIL_USER,
+      name,
+      email,
       subject: `New Contact Form Submission: ${subject}`,
-      text: `
-Name: ${name}
-Email: ${email}
-Subject: ${subject}
-Message: ${message}
-            `,
+      message: `
+Name: ${name} 
+Email: ${email} 
+Subject: ${subject} 
+Message: ${message} 
+  `,
+      to: process.env.EMAIL_USER,
     });
 
     console.log("Email sent successfully");
